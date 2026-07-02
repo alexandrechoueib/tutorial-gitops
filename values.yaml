@@ -2,6 +2,7 @@
 tutorialApp:
   namespace: tutorial
   appName: kubernetes-bootcamp
+  averageUtilization: 10 #10% pour voir les pods scale
   ## Deployment configuration for the Kubernetes Bootcamp application
   deployment:
     replicaCount: 2
@@ -17,6 +18,7 @@ tutorialApp:
   service:
     name: bootcamp-service
     port: 8080
+    targetPort: 8080
     protocol: TCP
     selector:
       app: kubernetes-bootcamp
@@ -35,7 +37,7 @@ traefik:
     - --providers.kubernetesingress=true
     - --providers.kubernetesingress.namespaces=
     - --providers.kubernetesingress.ingressclass=traefik # 👈 1. Force Traefik à intercepter la classe 'traefik'
-    - --entrypoints.web.address=:80                    # 👈 2. Écoute sur le port 8000 (évite les blocages de sécurité)
+    - --entrypoints.web.address=:80                    
     - --log.level=DEBUG
   container:
     port:

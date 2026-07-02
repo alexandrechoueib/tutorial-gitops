@@ -12,6 +12,6 @@ spec:
         pathType: {{ .Values.ingress.pathType }} # 👈 Le type de chemin que tu veux exposer
         backend:
           service:
-            name: {{ .Values.ingress.serviceName }} # Ton service avec ses endpoints valides
+            name: {{ .Values.ingress.serviceName }}
             port:
               number: {{ .Values.ingress.portNumber }}

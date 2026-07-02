@@ -1,0 +1,19 @@
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: kubernetes-bootcamp-hpa
+  namespace: {{ .Values.tutorialApp.namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ .Values.tutorialApp.service.selector.app }} # Nom de ton deployment applicatif
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: {{ .Values.tutorialApp.averageUtilization }} # Déclencheur à 10% de CPU

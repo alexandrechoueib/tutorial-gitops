@@ -5,7 +5,7 @@ metadata:
 spec:
   ports:
   - port: {{ .Values.tutorialApp.service.port }}
-    targetPort: {{ .Values.tutorialApp.service.port }}
+    targetPort: {{ .Values.tutorialApp.service.targetPort }}
     protocol: {{ .Values.tutorialApp.service.protocol }}
   selector:
     app: {{ .Values.tutorialApp.service.selector.app }}
