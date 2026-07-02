@@ -1,0 +1,6 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: traefik # 👈 Le nom qui doit correspondre à "ingressClassName: traefik"
+spec:
+  controller: traefik.io/ingress-controller # 👈 Identifiant officiel de Traefik

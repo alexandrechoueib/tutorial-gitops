@@ -1,0 +1,80 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: traefik
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: traefik-ingress-controller
+  namespace: {{ .Values.traefik.namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: traefik-ingress-controller
+rules:
+  - apiGroups: [""]
+    resources: ["services", "endpoints", "secrets", "namespaces"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses", "ingressclasses"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["networking.k8s.io"]
+    resources: ["ingresses/status"]
+    verbs: ["update"]
+  - apiGroups: ["traefik.io"] # 👈 Ajout crucial pour que le RBAC autorise les IngressRoute !
+    resources: ["ingressroutes", "ingressroutessubtotals", "middlewares", "middlewareresources", "ingressroutecontents", "traefikloggers", "tlsoptions", "tlsstores", "serverstransports", "serverstransportsrevs"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: traefik-ingress-controller
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: traefik-ingress-controller
+subjects:
+  - kind: ServiceAccount
+    name: traefik-ingress-controller
+    namespace: {{ .Values.traefik.namespace }} 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: traefik
+  namespace: {{ .Values.traefik.namespace }} # 👈 Le namespace où tu veux déployer Traefik
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.traefik.name }} # 👈 Le nom du conteneur
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.traefik.name }} # 👈 Le nom du conteneur
+    spec:
+      serviceAccountName: traefik-ingress-controller
+      containers:
+      - name: {{ .Values.traefik.name }} # 👈 Le nom du conteneur
+        image: {{ .Values.traefik.image }} # 👈 L'image officielle de Traefik
+        args: {{ .Values.traefik.args }}
+        ports:
+          - name: {{ .Values.traefik.container.port.name }} # 👈 Le nom du port exposé
+            containerPort: {{ .Values.traefik.container.port.number }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-loadbalancer
+  namespace: {{ .Values.traefik.namespace }} 
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: {{ .Values.traefik.loadbalancer.port }}
+      targetPort: {{ .Values.traefik.loadbalancer.targetPort }}
+      name: {{ .Values.traefik.service.name }}
+  selector:
+    app: {{ .Values.traefik.name }}
