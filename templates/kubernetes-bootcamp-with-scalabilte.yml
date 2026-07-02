@@ -33,7 +33,13 @@ spec:
       - image: {{ .Values.tutorialApp.deployment.image }}
         imagePullPolicy: IfNotPresent
         name: {{  .Values.tutorialApp.appName }}
-        resources: {{ .Values.tutorialApp.deployment.ressources }}
+        resources:
+          limits:
+            cpu: "1"
+            # memory: 512Mi
+          requests:
+            cpu: 100m # m = milli-coeurs. 100m = 10% d'un coeur CPU. 
+            # memory: 256Mi 
         terminationMessagePath: /dev/termination-log
         terminationMessagePolicy: File
       dnsPolicy: ClusterFirst
