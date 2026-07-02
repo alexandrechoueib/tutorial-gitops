@@ -59,7 +59,12 @@ spec:
       containers:
       - name: {{ .Values.traefik.name }} # 👈 Le nom du conteneur
         image: {{ .Values.traefik.image }} # 👈 L'image officielle de Traefik
-        args: {{ .Values.traefik.args }}
+        args: 
+        - --providers.kubernetesingress=true
+        - --providers.kubernetesingress.namespaces=
+        - --providers.kubernetesingress.ingressclass=traefik # 👈 1. Force Traefik à intercepter la classe 'traefik'
+        - --entrypoints.web.address=:80                    # 👈 2. Écoute sur le port 8000 (évite les blocages de sécurité)
+        - --log.level=DEBUG
         ports:
           - name: {{ .Values.traefik.container.port.name }} # 👈 Le nom du port exposé
             containerPort: {{ .Values.traefik.container.port.number }}
